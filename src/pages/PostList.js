@@ -4,7 +4,7 @@ import Post from "../components/Post";
 const PostList = props => {
     return (
         <>
-            <Post />
+            <Post></Post>
         </>
     );
 };
