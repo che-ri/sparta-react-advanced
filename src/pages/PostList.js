@@ -1,12 +1,16 @@
+// PostList.js
 import React from "react";
+
 import Post from "../components/Post";
 
-const PostList = props => {
+const PostList = (props) => {
+
     return (
-        <>
-            <Post></Post>
-        </>
-    );
-};
+        <React.Fragment>
+            <Post/>
+        </React.Fragment>
+    )
+}
 
 export default PostList;
+

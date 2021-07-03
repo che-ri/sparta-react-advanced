@@ -1,27 +1,30 @@
 import React from "react";
 import styled from "styled-components";
 
-const Text = ({ bold, color, size, children }) => {
-    const styles = { bold, color, size };
-    return (
-        <>
-            <P {...styles}>{children}</P>
-        </>
-    );
+const Text = (props) => {
+  const { bold, color, size, children, margin } = props;
+
+  const styles = {bold: bold, color: color, size: size, margin};
+  return (
+      <P {...styles}>
+          {children}
+      </P>
+  )
 };
 
 Text.defaultProps = {
-    children: null,
-    bold: false,
-    color: "#222831",
-    size: "14px",
+  children: null,
+  bold: false,
+  color: "#222831",
+  size: "14px",
+  margin: false,
 };
 
 const P = styled.p`
-    color: ${props => props.color};
-    font-size: ${props => props.size};
-    //bold로 넘어온값이 true면 600 false면 400입니다.
-    font-weight: ${props => (props.bold ? "600" : "400")};
+  color: ${(props) => props.color};
+  font-size: ${(props) => props.size};
+  font-weight: ${(props) => (props.bold? "600" : "400")};
+  ${(props) => (props.margin? `margin: ${props.margin};` : '')}
 `;
 
 export default Text;
