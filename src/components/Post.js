@@ -1,5 +1,7 @@
 import React from "react";
-import Grid from "../elements/Grid";
+
+//elements
+import { Grid, Image, Text } from "../elements";
 
 //이미지
 import img from "../img_cheri.jpg";
@@ -8,10 +10,20 @@ const Post = props => {
     return (
         <>
             <Grid padding="16px">
-                <div>user profile / user name / insert_dt 추가하기</div>
-                <div>contents 내용 </div>
-                <div>image 이미지사진</div>
-                <div>comment cnt 댓글갯수</div>
+                <Grid is_flex>
+                    {/* props로 undefinded 값이 내려오면, default로 선언한 값으로 보여진다. null, false는 안된다. */}
+                    <Image shape="circle" src={undefined} />
+                </Grid>
+                <Grid>
+                    <Text bold>{props.user_info.user_name}</Text>
+                    <Text>{props.user_info.insert_dt}</Text>
+                </Grid>
+                <Grid padding="16px">
+                    <Text>{props.contents}</Text>
+                </Grid>
+                <Grid padding="16px">
+                    <Text bold>댓글 {props.comment_cnt}개</Text>
+                </Grid>
             </Grid>
         </>
     );
