@@ -24,6 +24,17 @@ const initialState = {
     is_login: false,
 };
 
+// middlewware actions
+const loginAction = user => {
+    //state 받아서 가져오는 것을 getState로 할 수 있었습니다.
+    //history는 configureStore.js에서 withExtraArgument으로 history를 넣어주었던 것이지요.
+    return function (dispatch, getState, { history }) {
+        dispatch(logIn(user));
+        history.push("/");
+        //코드를 보다싶이 리덕스액션이 실행되고 나서 history를 통하여 페이지 이동할 수 있겠죠!
+    };
+};
+
 //reducer : redux-action과 immer 사용하기
 export default handleActions(
     {
@@ -36,12 +47,18 @@ export default handleActions(
                 draft.user = action.payload.user;
                 draft.is_login = true;
             }),
-        [LOG_OUT]: (state, action) => {},
+        [LOG_OUT]: (state, action) => {
+            produce(state, draft => {
+                deleteCookie("is_login"); //쿠키를 삭제해봅니다.
+                draft.user = null;
+                draft.is_login = false;
+            });
+        },
         [GET_USER]: (state, action) => {},
     },
     initialState
 ); //initialState자리는 state 초기값입니다.
 
 //action creator export
-const actionCreators = { logIn, logOut, getUser };
+const actionCreators = { logIn, logOut, getUser, loginAction };
 export { actionCreators };

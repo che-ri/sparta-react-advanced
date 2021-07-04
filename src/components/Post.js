@@ -7,7 +7,6 @@ import { Grid, Image, Text } from "../elements";
 import img from "../img_cheri.jpg";
 
 const Post = props => {
-    console.log(props);
     return (
         <>
             <Grid>

@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Grid, Text, Button } from "../elements";
 import { getCookie, deleteCookie } from "../shared/Cookie";
+import { useSelector, useDispatch } from "react-redux";
+import { actionCreators as userActions } from "../redux/modules/user";
 
 const Header = props => {
-    console.log(props);
-    const [is_login, setIsLogin] = useState(false);
+    //useSelector을 이용하면 리덕스에 있는 state를 가져올 수 있었죠!
+    const is_login = useSelector(state => state.user.is_login);
+    const dispatch = useDispatch();
 
-    useEffect(() => {
-        let cookie = getCookie("user_id");
-        cookie ? setIsLogin(true) : setIsLogin(false);
-    }, [is_login]);
-
+    //is_login이 true이면 아래와같이 렌더링 될 것 입니다.
     if (is_login) {
         return (
             <React.Fragment>
@@ -27,8 +26,7 @@ const Header = props => {
                         <Button
                             text="로그아웃"
                             _onClick={() => {
-                                deleteCookie("user_id");
-                                setIsLogin(false);
+                                dispatch(userActions.logOut({}));
                             }}
                         ></Button>
                     </Grid>
