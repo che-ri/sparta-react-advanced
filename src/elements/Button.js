@@ -6,12 +6,14 @@ const Button = props => {
 
     return (
         <React.Fragment>
+            {/* onChange가 되면 _onChange라는 함수를 넘겨준다. */}
             <ElButton onClick={_onClick}>{text}</ElButton>
         </React.Fragment>
     );
 };
 
 Button.defaultProps = {
+    //props가 없을때 오류 방지
     text: "텍스트",
     _onClick: () => {},
 };
