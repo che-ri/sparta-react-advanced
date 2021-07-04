@@ -11,6 +11,7 @@ export const history = createBrowserHistory();
 const rootReducer = combineReducers({
     user: User,
     //아래와 같이 사용하면 우리의 라우터와 history가 연결이 됩니다. 이렇게 리덕스스토어에 브라우저히스토리를 저장할 수 있다.
+    //꼭 리듀서명을 router로 해야합니다!
     router: connectRouter(history),
     //또다른 모듈이 있다면 여기서 쭉쭉 넣어주면 됩니다!
 });

@@ -1,10 +1,17 @@
 import React from "react";
+
+//리덕스
+import { useDispatch } from "react-redux";
+import { actionCreators as userActions } from "../redux/modules/user"; //액션생성함수들을 묶어두었던 actionCreators를 불러옵니다.
+
+//컴포넌트
 import { Text, Input, Grid, Button } from "../elements";
-import "../shared/Cookie.js";
+
+//함수불러오기
 import { getCookie, setCookie, deleteCookie } from "../shared/Cookie.js";
 
 const Login = props => {
-    console.log(props);
+    const dispatch = useDispatch();
     const [id, setId] = React.useState("");
     const [pwd, setPwd] = React.useState("");
 
@@ -15,9 +22,7 @@ const Login = props => {
         setPwd(e.target.value);
     };
     const login = () => {
-        setCookie("user_id", id, 3);
-        setCookie("user_pwd", pwd, 3);
-        console.log(getCookie("user_id"));
+        dispatch(userActions.loginAction({ user_id: "cheri" }));
     };
 
     return (
