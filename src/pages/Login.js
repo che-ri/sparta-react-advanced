@@ -4,6 +4,7 @@ import "../shared/Cookie.js";
 import { getCookie, setCookie, deleteCookie } from "../shared/Cookie.js";
 
 const Login = props => {
+    console.log(props);
     const [id, setId] = React.useState("");
     const [pwd, setPwd] = React.useState("");
 
@@ -39,7 +40,13 @@ const Login = props => {
                         _onChange={getpwd}
                     />
                 </Grid>
-                <Button text="로그인하기" _onClick={login}></Button>
+                <Button
+                    text="로그인하기"
+                    _onClick={() => {
+                        console.log("로그인했어!");
+                        login();
+                    }}
+                ></Button>
             </Grid>
         </React.Fragment>
     );
