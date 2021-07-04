@@ -7,19 +7,24 @@ import { Grid, Image, Text } from "../elements";
 import img from "../img_cheri.jpg";
 
 const Post = props => {
+    console.log(props);
     return (
         <>
-            <Grid padding="16px">
-                <Grid is_flex>
-                    {/* props로 undefinded 값이 내려오면, default로 선언한 값으로 보여진다. null, false는 안된다. */}
-                    <Image shape="circle" src={undefined} />
-                </Grid>
-                <Grid>
-                    <Text bold>{props.user_info.user_name}</Text>
-                    <Text>{props.user_info.insert_dt}</Text>
+            <Grid>
+                <Grid is_flex padding="16px">
+                    <Grid is_flex width="auto">
+                        <Image shape="circle" src={props.src} />
+                        <Text bold>{props.user_info.user_name}</Text>
+                    </Grid>
+                    <Grid is_flex width="auto">
+                        <Text>{props.insert_dt}</Text>
+                    </Grid>
                 </Grid>
                 <Grid padding="16px">
                     <Text>{props.contents}</Text>
+                </Grid>
+                <Grid>
+                    <Image shape="rectangle" src={props.src} />
                 </Grid>
                 <Grid padding="16px">
                     <Text bold>댓글 {props.comment_cnt}개</Text>
