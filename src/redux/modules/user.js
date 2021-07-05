@@ -30,23 +30,29 @@ const initialState = {
 
 const loginFB = (id, pwd) => {
     return function (dispatch, getState, { history }) {
-        auth.signInWithEmailAndPassword(id, pwd)
-            .then((user) => {
-                //여기 user안에는 서버에서 받아온 정보가 몽땅 들어있겠죠! 콘솔에도 찍어서 확인해봐요!
-                dispatch(
-                    setUser({
-                        user_name: user.user.displayName,
-                        id: id,
-                        user_profile: "",
+        //로그인 인증상태 지속 : https://firebase.google.com/docs/auth/web/auth-state-persistence?authuser=0
+        //로그인을 하면 이제 세션에 정보가 등록이 됩니다!
+        auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(
+            (res) => {
+                auth.signInWithEmailAndPassword(id, pwd)
+                    .then((user) => {
+                        //여기 user안에는 서버에서 받아온 정보가 몽땅 들어있겠죠! 콘솔에도 찍어서 확인해봐요!
+                        dispatch(
+                            setUser({
+                                user_name: user.user.displayName,
+                                id: id,
+                                user_profile: "",
+                                uid: user.user.uid,
+                            })
+                        );
                     })
-                );
-                history.push("/");
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(errorCode, errorMessage);
-            });
+                    .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        console.log(errorCode, errorMessage);
+                    });
+            }
+        );
     };
 };
 
@@ -70,6 +76,7 @@ const signupFB = (id, pwd, user_name) => {
                                 user_name: user_name,
                                 id: id,
                                 user_profile: "",
+                                uid: user.user.uid,
                             })
                         );
                         history.push("/");
@@ -81,6 +88,27 @@ const signupFB = (id, pwd, user_name) => {
                 let errorMessage = error.message;
                 console.log(errorCode, errorMessage);
             });
+    };
+};
+
+const loginChekFB = () => {
+    return function (dispatch, getState, { history }) {
+        //유저가 있는지 없는지 확인하는 함수입니다.
+        //이 함수는 제일 상위 컴포넌트인 App.js에서 사용될 것이며, 이 함수가 새로고침을해도 로그인인증을 하여 정보를 계속 리덕스 스토어에 주입시켜 줄 것입니다.
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                dispatch(
+                    setUser({
+                        user_name: user.displayName,
+                        user_profile: "",
+                        id: user.email,
+                        uid: user.uid,
+                    })
+                );
+            } else {
+                dispatch(logOut());
+            }
+        });
     };
 };
 
@@ -110,5 +138,5 @@ export default handleActions(
 ); //initialState자리는 state 초기값입니다.
 
 //action creator export
-const actionCreators = { loginFB, logOut, getUser, signupFB };
+const actionCreators = { loginFB, logOut, getUser, signupFB, loginChekFB };
 export { actionCreators };
