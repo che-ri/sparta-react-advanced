@@ -1,6 +1,9 @@
 import firebase from "firebase/app";
-//auth사용하기
+//firebase의 기능들입니다.
 import "firebase/auth";
+import "firebase/firestore";
+import "firebase/storage";
+import "firebase/database";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCwwZJRQmRbXdDnwVgy919DRw_i7g_ePEE",
@@ -12,11 +15,12 @@ const firebaseConfig = {
     measurementId: "G-1PM0P33Z3T",
 };
 
-const apikey = firebaseConfig.apiKey;
-
-//초기화해줍니다!
 firebase.initializeApp(firebaseConfig);
 
 //다른 곳에서 auth를 가지고와서 사용할 수 있도록 만들어줍니다.
+const apiKey = firebaseConfig.apiKey;
 const auth = firebase.auth();
-export { auth, apikey };
+const firestore = firebase.firestore();
+const storage = firebase.storage();
+const realtime = firebase.database();
+export { auth, apiKey, firestore, storage, realtime };
