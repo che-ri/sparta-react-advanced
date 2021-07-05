@@ -7,10 +7,10 @@ import { apikey } from "../shared/firebase";
 //컴포넌트
 import { Grid, Text, Button } from "../elements";
 
-const Header = (props) => {
+const Header = props => {
     //useSelector을 이용하면 리덕스에 있는 state를 가져올&&&& 수 있었죠!
     const dispatch = useDispatch();
-    const is_login = useSelector((state) => state.user.is_login);
+    const is_login = useSelector(state => state.user.is_login);
 
     //우리는 파이어베이스 로그인을 하면 sessionStorage에 인증정보를 담는 방식을 채택했죠!
     //이 sessionStorage에 있는 key 값에는 api키가 포함되어있습니다.
