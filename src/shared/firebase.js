@@ -12,9 +12,11 @@ const firebaseConfig = {
     measurementId: "G-1PM0P33Z3T",
 };
 
+const apikey = firebaseConfig.apiKey;
+
 //초기화해줍니다!
 firebase.initializeApp(firebaseConfig);
 
 //다른 곳에서 auth를 가지고와서 사용할 수 있도록 만들어줍니다.
 const auth = firebase.auth();
-export { auth };
+export { auth, apikey };
