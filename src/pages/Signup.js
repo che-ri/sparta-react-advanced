@@ -3,7 +3,7 @@ import { Grid, Text, Input, Button } from "../elements";
 import { useDispatch } from "react-redux";
 import { actionCreators as userActions } from "../redux/modules/user";
 
-const Signup = props => {
+const Signup = (props) => {
     const dispatch = useDispatch();
 
     const signup = () => {
@@ -32,7 +32,7 @@ const Signup = props => {
                     <Input
                         label="아이디"
                         placeholder="아이디를 입력해주세요."
-                        _onChange={e => {
+                        _onChange={(e) => {
                             setId(e.target.value);
                         }}
                     />
@@ -42,7 +42,7 @@ const Signup = props => {
                     <Input
                         label="닉네임"
                         placeholder="닉네임을 입력해주세요."
-                        _onChange={e => {
+                        _onChange={(e) => {
                             setUserName(e.target.value);
                         }}
                     />
@@ -52,7 +52,8 @@ const Signup = props => {
                     <Input
                         label="비밀번호"
                         placeholder="비밀번호를 입력해주세요."
-                        _onChange={e => {
+                        type="password"
+                        _onChange={(e) => {
                             setPwd(e.target.value);
                         }}
                     />
@@ -62,7 +63,8 @@ const Signup = props => {
                     <Input
                         label="비밀번호 확인"
                         placeholder="비밀번호를 다시 입력해주세요."
-                        _onChange={e => {
+                        type="password"
+                        _onChange={(e) => {
                             setPwdCheck(e.target.value);
                         }}
                     />
