@@ -36,7 +36,6 @@ const getPostFB = () => {
                             insert_dt: data.insert_dt,
                             id: data.id,
                         };
-
                         post_list.push(post);
                         //2. 불러온 FB데이터에서 내가 쓸 데이터 솎아내기! (심화)
                         // const data = doc.data();
