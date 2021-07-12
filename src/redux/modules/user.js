@@ -65,6 +65,7 @@ const signupFB = (id, pwd, user_name) => {
             .then(user => {
                 // 유저 프로필 업데이트 https://firebase.google.com/docs/auth/web/manage-users?authuser=0
                 // 우리는 유저네임도 넣어야하기때문에, 가입성공 후 유저네임을 업.데.이.트 하는 방식으로 할 것입니다.
+                // 가입후, user 안에 있는 내용들을 사용할 수 있습니다.
                 auth.currentUser
                     .updateProfile({
                         //서버의 데이터 중 displayName 속에 user_name을 넣어줍니다!

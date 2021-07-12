@@ -2,6 +2,7 @@ import firebase from "firebase/app";
 //auth사용하기
 import "firebase/auth";
 import "firebase/firestore";
+import "firebase/storage";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCwwZJRQmRbXdDnwVgy919DRw_i7g_ePEE",
@@ -18,6 +19,7 @@ firebase.initializeApp(firebaseConfig);
 const apikey = firebaseConfig.apiKey;
 const auth = firebase.auth();
 const firestore = firebase.firestore();
+const storage = firebase.storage();
 
 //다른 곳에서 auth를 가지고와서 사용할 수 있도록 만들어줍니다.
-export { auth, apikey, firestore };
+export { auth, apikey, firestore, storage };

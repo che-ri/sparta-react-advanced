@@ -1,6 +1,9 @@
 import { createAction, handleActions } from "redux-actions";
 import { produce } from "immer";
 import { firestore } from "../../shared/firebase";
+import { storage } from "../../shared/firebase";
+import moment from "moment";
+import { actionCreators as imageActions } from "./image";
 
 const GET_POST = "GET_POST";
 const ADD_POST = "ADD_POST";
@@ -66,18 +69,79 @@ const getPostFB = () => {
     };
 };
 
+const addPostFB = (contents = "") => {
+    return function (dispatch, getState, { history }) {
+        const postDB = firestore.collection("post");
+        const _user = getState().user.user;
+        const user_info = {
+            //기존 유저정보 받아와서 정보 넣어주기!
+            user_name: _user.user_name,
+            user_id: _user.uid,
+            user_profile: _user.user_profile,
+        };
+        const _post = {
+            // post 정보 받아오기
+            ...initialPost,
+            contents: contents,
+            insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"), //지금 날짜 생성
+        };
+
+        //문자열에서 업로드 https://firebase.google.com/docs/storage/web/upload-files
+        const _image = getState().image.preview; // 이 안에는 원시 문자열이 들어가있으므로, 얘를 data_url로 변환한 후, post와 합칩니다!
+        const _upload = storage
+            // 파일 이름은 유저의 id와 현재 시간을 밀리초로 넣어줍시다! (혹시라도 중복이 생기지 않도록요!)
+            .ref(`images/${user_info.user_id}_${new Date().getTime()}`)
+            .putString(_image, "data_url"); //_image라는 원시문자열을 data_url로 변환!
+
+        _upload.then(snapshot => {
+            //바꾸고 나서 잘 되었는지 확인해보자!
+            snapshot.ref
+                .getDownloadURL()
+                .then(url => {
+                    dispatch(imageActions.uploadImage(url));
+                    return url; // 이렇게 url을 리턴해주면 그 다음 then 에서 사용할 수 있습니다!
+                })
+                .then(url => {
+                    postDB
+                        .add({ ...user_info, ..._post, image_url: url })
+                        .then(doc => {
+                            let post = {
+                                user_info,
+                                ..._post,
+                                id: doc.id,
+                                image_url: url,
+                            };
+                            dispatch(addPost(post));
+                            dispatch(imageActions.setPreview(null));
+                            //imageActions
+                            window.alert("작성완료!");
+                            history.replace("/");
+                        })
+                        .catch(err => {
+                            window.alert("앗! 포스트 작성에 문제가 있어요!");
+                            console.log("post 작성에 실패했어요!", err);
+                        });
+                })
+                .catch(err => {
+                    window.alert("이미지 업로드에 문제가 있어요!");
+                    console.log(err);
+                });
+        });
+    };
+};
+
 const initialPost = {
-    id: 0,
-    user_info: {
-        user_name: "klara",
-        user_profile:
-            "https://images.unsplash.com/photo-1625640386828-b1586a3652e4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1234&q=80",
-    },
+    // id: 0,
+    // user_info: {
+    //     user_name: "klara",
+    //     user_profile:
+    //         "https://images.unsplash.com/photo-1625640386828-b1586a3652e4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1234&q=80",
+    // },
     image_url:
         "https://images.unsplash.com/photo-1625640386828-b1586a3652e4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1234&q=80",
     contents: "Hello, buddy",
     comment_cnt: 0,
-    insert_dt: "2021-07-08 23:01:00",
+    insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"), //지금 날짜 생성! (형식까지 지정)
 };
 
 export default handleActions(
@@ -87,7 +151,10 @@ export default handleActions(
             produce(state, draft => {
                 draft.list = action.payload.post_list;
             }),
-        [ADD_POST]: (state, action) => produce(state, draft => {}),
+        [ADD_POST]: (state, action) =>
+            produce(state, draft => {
+                draft.list.unshift(action.payload.post);
+            }),
     },
     initialPostList
 );
@@ -96,6 +163,7 @@ const actionCreators = {
     getPost,
     addPost,
     getPostFB,
+    addPostFB,
 };
 
 export { actionCreators };

@@ -2,7 +2,6 @@ import styled from "styled-components";
 import React from "react";
 
 //이미지
-import img from "../img_cheri.jpg";
 
 const Image = props => {
     const { shape, src, size } = props;
@@ -29,7 +28,7 @@ const Image = props => {
 
 Image.defaultProps = {
     shape: "circle",
-    src: img,
+    src: "http://via.placeholder.com/400x300",
     size: 36,
 };
 
