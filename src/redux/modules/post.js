@@ -32,6 +32,7 @@ const getPostFB = () => {
                             user_info: {
                                 user_name: data.user_name,
                                 user_profile: data.user_profile,
+                                user_id: data.user_id,
                             },
                             image_url: data.image_url,
                             contents: data.contents,
