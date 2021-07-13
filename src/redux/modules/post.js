@@ -1,4 +1,4 @@
-import { createAction, handleActions } from "redux-actions";
+import { createAction, createActions, handleActions } from "redux-actions";
 import { produce } from "immer";
 import { firestore } from "../../shared/firebase";
 import { storage } from "../../shared/firebase";
@@ -7,9 +7,14 @@ import { actionCreators as imageActions } from "./image";
 
 const GET_POST = "GET_POST";
 const ADD_POST = "ADD_POST";
+const EDIT_POST = "EDIT_POST";
 
 const getPost = createAction(GET_POST, post_list => ({ post_list }));
 const addPost = createAction(ADD_POST, post => ({ post }));
+const editPost = createAction(EDIT_POST, (post_id, post) => ({
+    post_id,
+    post,
+}));
 
 const initialPostList = {
     list: [],
@@ -131,6 +136,64 @@ const addPostFB = (contents = "") => {
     };
 };
 
+const editPostFB = (post_id = null, post = {}) => {
+    return function (dispatch, getState, { history }) {
+        if (!post_id) {
+            window.alert("게시글 정보가 없어요!");
+            return;
+        }
+        const _image = getState().image.preview;
+        const _post_idx = getState().post.list.findIndex(p => p.id === post_id);
+        const _post = getState().post.list[_post_idx];
+
+        const postDB = firestore.collection("post");
+        //글만 수정되었다면!
+        if (_image == _post.image_url)
+            postDB
+                .doc(post_id)
+                .update(post) //문서 일부만 수정할땐 update를 쓰죠!
+                .then(doc => {
+                    dispatch(editPost(post_id, { ...post }));
+                    history.replace("/");
+                });
+        //이미지가 수정되었다면!
+        else {
+            const user_id = getState().user.user.uid;
+            const _upload = storage
+                .ref(`images/${user_id}_${new Date().getTime()}`)
+                .putString(_image, "data_url");
+
+            _upload.then(snapshot => {
+                snapshot.ref
+                    .getDownloadURL()
+                    .then(url => {
+                        console.log(url);
+
+                        return url;
+                    })
+                    .then(url => {
+                        postDB
+                            .doc(post_id)
+                            .update({ ...post, image_url: url })
+                            .then(doc => {
+                                dispatch(
+                                    editPost(post_id, {
+                                        ...post,
+                                        image_url: url,
+                                    })
+                                );
+                                history.replace("/");
+                            });
+                    })
+                    .catch(err => {
+                        window.alert("앗! 이미지 업로드에 문제가 있어요!");
+                        console.log("앗! 이미지 업로드에 문제가 있어요!", err);
+                    });
+            });
+        }
+    };
+};
+
 const initialPost = {
     // id: 0,
     // user_info: {
@@ -156,6 +219,17 @@ export default handleActions(
             produce(state, draft => {
                 draft.list.unshift(action.payload.post);
             }),
+        [EDIT_POST]: (state, action) =>
+            produce(state, draft => {
+                let idx = draft.list.findIndex(
+                    p => p.id === action.payload.post_id
+                );
+                //컨텐츠들이 수정이 될 수도 있고, 아닐 수도 있으니! 일단 그전 것들을 가지고 오고 스프레드 연산자를 통하여 바뀐 부분만 바꿔서 state에 넣어줍니다!
+                draft.list[idx] = {
+                    ...draft.list[idx],
+                    ...action.payload.post,
+                };
+            }),
     },
     initialPostList
 );
@@ -163,8 +237,10 @@ export default handleActions(
 const actionCreators = {
     getPost,
     addPost,
+    editPost,
     getPostFB,
     addPostFB,
+    editPostFB,
 };
 
 export { actionCreators };
