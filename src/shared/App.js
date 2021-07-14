@@ -11,8 +11,13 @@ import { actionCreators as userActions } from "../redux/modules/user";
 import PostList from "../pages/PostList";
 import Login from "../pages/Login";
 import Signup from "../pages/Signup";
+import PostWrite from "../pages/PostWrite";
+import PostDetail from "../pages/PostDetail";
+import Notification from "../pages/Notification";
 import Header from "../components/Header";
-import { Grid } from "../elements";
+import Search from "./Search";
+import Permit from "./Permit";
+import { Grid, Button } from "../elements";
 
 function App() {
     const dispatch = useDispatch();
@@ -35,8 +40,24 @@ function App() {
                     <Route path="/" exact component={PostList} />
                     <Route path="/login" exact component={Login} />
                     <Route path="/signup" exact component={Signup} />
+                    <Route path="/write" exact component={PostWrite} />
+                    <Route path="/write/:id" exact component={PostWrite} />
+                    <Route path="/search" exact component={Search} />
+                    <Route path="/noti" exact component={Notification} />
+                    <Route path="/post/:id" exact component={PostDetail} />
                 </ConnectedRouter>
             </Grid>
+
+            {/* 권한 컴포넌트로 만든 Permit의 조건에 따라 Button이 렌더링 될 지 여부가 정해진다.  */}
+            <Permit>
+                <Button
+                    is_fixed
+                    text="+"
+                    _onClick={() => {
+                        history.push("/write");
+                    }}
+                ></Button>
+            </Permit>
         </React.Fragment>
     );
 }
