@@ -8,22 +8,88 @@ import { actionCreators as imageActions } from "./image";
 const GET_POST = "GET_POST";
 const ADD_POST = "ADD_POST";
 const EDIT_POST = "EDIT_POST";
+const LOADING = "LOADING";
 
-const getPost = createAction(GET_POST, post_list => ({ post_list }));
+const getPost = createAction(GET_POST, (post_list, paging) => ({
+    post_list,
+    paging,
+}));
 const addPost = createAction(ADD_POST, post => ({ post }));
 const editPost = createAction(EDIT_POST, (post_id, post) => ({
     post_id,
     post,
 }));
+const loading = createAction(LOADING, is_loading => ({ is_loading }));
 
-const initialPostList = {
+const initialState = {
     list: [],
+    paging: { start: null, next: null, size: 3 },
+    is_loading: false,
 };
 
-//FB에서 post 정보 받아오는 역할을 합니다.
-const getPostFB = () => {
+//FB에서 post 정보를 받아오거나, 인피니티 스크롤방식으로 가져옵니다.
+const getPostFB = (start = null, size = 3) => {
     return function (dispatch, getState, { history }) {
+        //예외처리 : 만약 다음페이지로 불러올 것이 없으면 바로 함수를 끝낸다.
+        let _paging = getState().post.paging;
+        if (_paging.start && !_paging.next) {
+            alert("그 다음 목록이 없어요!");
+            return;
+        }
+
+        //가져오기 시작!
+        dispatch(loading(true)); //loading 중임을 알려준다.
         const postDB = firestore.collection("post");
+        //데이터 정렬 및 제한 https://firebase.google.com/docs/firestore/query-data/order-limit-data
+        let query = postDB.orderBy("insert_dt", "desc"); //orderBy에 "desc"을 넣어주면 내림차순으로 정렬된다.
+
+        if (start) query = query.startAt(start); //start값이 넘어오면 시작점을 지정해준다.
+
+        //📌어라 잠깐? 아래의 getPostFB에서는 size보다 항목을 한 개 더 가져와놓고(limit(size+1)) 왜 리덕스스토어에서는 3개만 저장(size:3)하나요?
+        //일단 4개를 가져오는 것이 성공이 되면 3개를 리스트를 뿌려주고, 그 다음에 또 가져올 항목이 있다는 것이겠지요
+        //위와 같이 다음 항목이 있는지 판별하기 위해 4개를 일단 가져오는 것입니다!
+        query
+            .limit(size + 1) //항상 size보다 1크게 가져옵니다.
+            .get()
+            .then(docs => {
+                let post_list = [];
+
+                // 새롭게 페이징 정보를 만들어줘요.
+                // 시작점에는 새로 가져온 정보의 시작점을 넣고,
+                // next에는 마지막 항목을 넣습니다.
+                // (이 next가 다음번 리스트 호출 때 start 파라미터로 넘어올거예요.)
+                let paging = {
+                    start: docs.docs[0], //가져온 문서의 start 지점을 정해줍니다.
+                    next:
+                        docs.docs.length === size + 1 //가져온 데이터의 길이와 size+1이 같으면, 불러올 데이터 뒤에 데이터가 더 있겠죠!
+                            ? docs.docs[docs.docs.length - 1] //true면 next 지점을 선택해주고,
+                            : null, //false면 next 지점을 null로 지정합니다.
+                    size: size,
+                };
+
+                docs.forEach(doc => {
+                    if (doc.exists) {
+                        //1.불러온 FB데이터에서 내가 쓸 데이터 솎아내기! 각 딕셔너리의 id와 딕셔너리 내용이 필요하죠!
+                        const data = { id: doc.id, ...doc.data() }; //스프레드 연산자를 이용하면 doc.data()안에 있는 key:value들이 나열되어 저장됩니다.
+                        let post = {
+                            user_info: {
+                                user_name: data.user_name,
+                                user_profile: data.user_profile,
+                                user_id: data.user_id,
+                            },
+                            image_url: data.image_url,
+                            contents: data.contents,
+                            comment_cnt: data.comment_cnt,
+                            insert_dt: data.insert_dt,
+                            id: data.id,
+                        };
+                        post_list.push(post);
+                    } else console.log("No such document!");
+                });
+                post_list.pop(); //FB에서 4개씩 가져왔으니까 리덕스스토어에 넣기 전에 마지막요소는 지워줘야죠!
+                dispatch(getPost(post_list, paging)); //딕셔너리를 잘 정리해서~ 리덕스스토어에 저~장!
+            });
+        return;
         //FB데이터 불러오기!
         postDB
             .get()
@@ -167,8 +233,6 @@ const editPostFB = (post_id = null, post = {}) => {
                 snapshot.ref
                     .getDownloadURL()
                     .then(url => {
-                        console.log(url);
-
                         return url;
                     })
                     .then(url => {
@@ -213,7 +277,9 @@ export default handleActions(
         [GET_POST]: (state, action) =>
             //데이터를 리덕스 스토어에 저장!
             produce(state, draft => {
-                draft.list = action.payload.post_list;
+                draft.list.push(...action.payload.post_list);
+                draft.paging = action.payload.paging;
+                draft.is_loading = false;
             }),
         [ADD_POST]: (state, action) =>
             produce(state, draft => {
@@ -230,8 +296,12 @@ export default handleActions(
                     ...action.payload.post,
                 };
             }),
+        [LOADING]: (state, action) =>
+            produce(state, draft => {
+                draft.is_loading = action.payload.is_loading;
+            }),
     },
-    initialPostList
+    initialState
 );
 
 const actionCreators = {
