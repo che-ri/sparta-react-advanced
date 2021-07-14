@@ -2,8 +2,9 @@ import React from "react";
 import styled from "styled-components";
 
 const Button = props => {
-    const { is_fixed, width, margin, text, children, _onClick } = props;
-    const styles = { margin, width };
+    const { is_fixed, width, margin, text, padding, children, _onClick } =
+        props;
+    const styles = { margin, width, padding };
     if (is_fixed)
         return (
             <>
@@ -29,6 +30,7 @@ Button.defaultProps = {
     margin: false,
     text: false,
     children: null,
+    padding: "12px 0",
     _onClick: () => {},
 };
 
@@ -36,7 +38,7 @@ const ElButton = styled.button`
     width: ${props => props.width};
     background-color: #212121;
     color: #ffffff;
-    padding: 12px 0px;
+    padding: ${props => props.padding};
     box-sizing: border-box;
     border: none;
     ${props => (props.margin ? `margin:${props.margin};` : ``)}

@@ -130,7 +130,7 @@ export default handleActions(
         [LOG_OUT]: (state, action) => {
             produce(state, draft => {
                 deleteCookie("is_login"); //쿠키를 삭제해봅니다.
-                draft.user = null;
+                draft.user = action.payload.user;
                 draft.is_login = false;
             });
         },

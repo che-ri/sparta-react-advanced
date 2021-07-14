@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { Text, Grid } from "./index";
 
-const Input = ({ label, placeholder, _onChange, type, multiLine }) => {
+const Input = ({ label, placeholder, _onChange, type, multiLine, value }) => {
     if (multiLine)
         return (
             <Grid>
@@ -12,6 +12,7 @@ const Input = ({ label, placeholder, _onChange, type, multiLine }) => {
                     type={type}
                     placeholder={placeholder}
                     onChange={_onChange}
+                    value={value}
                     //rows는 textarea의 기본 속성입니다. n줄만큼의 높이를 늘립니다.
                     rows="10"
                 />
@@ -39,6 +40,7 @@ Input.defaultProps = {
     _onChange: () => {},
     type: "text",
     multiLine: false,
+    value: "",
 };
 
 const ElInput = styled.input`

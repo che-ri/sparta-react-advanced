@@ -35,7 +35,8 @@ const Header = props => {
                         <Button
                             text="로그아웃"
                             _onClick={() => {
-                                dispatch(userActions.logOut({}));
+                                history.push("/login");
+                                dispatch(userActions.logOut());
                             }}
                         ></Button>
                     </Grid>
