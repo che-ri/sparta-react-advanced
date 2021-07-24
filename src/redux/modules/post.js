@@ -27,10 +27,10 @@ const initialState = {
     is_loading: false,
 };
 
-//FB에서 post 정보를 받아오거나, 인피니티 스크롤방식으로 가져옵니다.
+//FB에서 인피니티 스크롤방식으로 post 정보를 가져옵니다.
 const getPostFB = (start = null, size = 3) => {
     return function (dispatch, getState, { history }) {
-        //예외처리 : 만약 다음페이지로 불러올 것이 없으면 바로 함수를 끝낸다.
+        //예외처리 : 만약 다음페이지로 불러올 것이 없으면 바로 함수를 끝낸다. 기존 리덕스 스토어에 state를 이용합니다. 왜? 새로고침하면 이 정보들은 필요없는 정보니까!
         let _paging = getState().post.paging;
         if (_paging.start && !_paging.next) {
             alert("그 다음 목록이 없어요!");
@@ -39,11 +39,11 @@ const getPostFB = (start = null, size = 3) => {
 
         //가져오기 시작!
         dispatch(loading(true)); //loading 중임을 알려준다.
-        const postDB = firestore.collection("post");
-        //데이터 정렬 및 제한 https://firebase.google.com/docs/firestore/query-data/order-limit-data
-        let query = postDB.orderBy("insert_dt", "desc"); //orderBy에 "desc"을 넣어주면 내림차순으로 정렬된다.
 
-        if (start) query = query.startAt(start); //start값이 넘어오면 시작점을 지정해준다.
+        //데이터 정렬 및 제한 https://firebase.google.com/docs/firestore/query-data/order-limit-data
+        const postDB = firestore.collection("post");
+        let query = postDB.orderBy("insert_dt", "desc"); //orderBy에 "desc"을 넣어주면 내림차순으로 정렬된다.
+        if (start) query = query.startAt(start); //컴포넌트로부터 start값이 넘어오면 시작점을 지정해준다. 왜? 시작점을 정해주어야, 문서의 몇 번째부터 가져와야되는지 알 수 있겠죠!
 
         //📌어라 잠깐? 아래의 getPostFB에서는 size보다 항목을 한 개 더 가져와놓고(limit(size+1)) 왜 리덕스스토어에서는 3개만 저장(size:3)하나요?
         //일단 4개를 가져오는 것이 성공이 되면 3개를 리스트를 뿌려주고, 그 다음에 또 가져올 항목이 있다는 것이겠지요

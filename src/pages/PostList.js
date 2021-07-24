@@ -21,7 +21,7 @@ const PostList = props => {
         <React.Fragment>
             {/* 기존 state(post_list) 안에 각 딕셔너리들의 데이터를 나열하여 화면에 뿌려줄 것이다! */}
             <InfinityScroll
-                callNext={() => console.log("next!")}
+                callNext={() => dispatch(postActions.getPostFB(paging.next))}
                 is_next={paging.next ? true : false}
                 loading={is_loading}
             >
@@ -33,14 +33,8 @@ const PostList = props => {
                     else return <Post key={post.id} {...post} />;
                 })}
             </InfinityScroll>
-            <button
-                onClick={() => dispatch(postActions.getPostFB(paging.next))}
-            >
-                추가로드
-            </button>
         </React.Fragment>
     );
 };
 
 export default PostList;
-
