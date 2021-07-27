@@ -13,7 +13,7 @@ import { history } from "../redux/configureStore";
 const Post = props => {
     return (
         <>
-            <Grid>
+            <Grid bg="#fff" margin="20px 0">
                 <Grid is_flex padding="16px">
                     <Grid is_flex width="auto">
                         <Image

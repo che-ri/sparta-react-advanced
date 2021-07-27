@@ -1,9 +1,10 @@
 import React, { useEffect, useCallback } from "react";
 import _ from "lodash";
 
+//여기서 callNext는 redux의 post모듈의 getPostFB를 뜻한다.
 const InfinityScroll = ({ children, callNext, is_next, loading }) => {
     const _handleScroll = _.throttle(() => {
-        if (loading) return;
+        if (loading) return; //로딩 중이면 callNext를 부르지 않기위해 바로 return 걸어준다!
 
         const { innerHeight } = window;
         const { scrollHeight } = document.body;
@@ -13,11 +14,9 @@ const InfinityScroll = ({ children, callNext, is_next, loading }) => {
             document.body.scrollTop;
 
         if (scrollHeight - innerHeight - scrollTop < 200) callNext();
+    }, 300);
 
-        callNext();
-    }, 1000);
-
-    const handleScroll = useCallback(_handleScroll, [loading]); //1. loading이 true일때 _handleScroll이 작동됩니다! => 똑같은 이벤트가 계속 발생될때, 또 함수가 실행되지 않도록(문서를 가져오지 않도록) 막아줍니다.
+    const handleScroll = useCallback(_handleScroll, [loading]); //1. loading이 바뀔 때, _handleScroll이 작동됩니다! => 똑같은 이벤트가 계속 발생될때, 또 함수가 실행되지 않도록(문서를 가져오지 않도록) 막아줍니다.
 
     useEffect(() => {
         if (loading) return; //똑같은 이벤트가 계속 발생될때, 또 함수가 실행되지 않도록(문서를 가져오지 않도록) 막아줍니다.
