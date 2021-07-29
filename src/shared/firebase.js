@@ -3,6 +3,7 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import "firebase/storage";
+import "firebase/database";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCwwZJRQmRbXdDnwVgy919DRw_i7g_ePEE",
@@ -20,6 +21,7 @@ const apikey = firebaseConfig.apiKey;
 const auth = firebase.auth();
 const firestore = firebase.firestore();
 const storage = firebase.storage();
+const realtime = firebase.database();
 
 //다른 곳에서 auth를 가지고와서 사용할 수 있도록 만들어줍니다.
-export { auth, apikey, firestore, storage };
+export { auth, apikey, firestore, storage, realtime };

@@ -1,6 +1,6 @@
 import { createAction, handleActions } from "redux-actions";
 import { produce } from "immer";
-import { firestore } from "../../shared/firebase";
+import { firestore, realtime } from "../../shared/firebase";
 import "moment";
 import moment from "moment";
 import firebase from "firebase/app"; //얘를 불러오면 firebase의 기능! 함수들을 사용할 수 있다.
@@ -74,6 +74,28 @@ const addCommentFB = (post_id, contents) => {
                                 comment_cnt: parseInt(post.comment_cnt) + 1, //parseInt로 post.commnet_cnt를 형변환 시키고 +1해준 값을 state에 저장한다.
                             })
                         );
+
+                    //댓글이 추가되면 알람울리기!!!🔔 지금은 동일 인물이여도 알람이 울리지만, 나중에 다른 사람이면 울려주도록 처리해주자!
+                    const _noti_item = realtime
+                        .ref(`noti/${post.user_info.user_id}/list`)
+                        .push();
+                    _noti_item.set(
+                        {
+                            post_id: post.id,
+                            user_name: comment.user_name,
+                            image_url: post.image_url,
+                            insert_dt: comment.insert_dt,
+                        },
+                        err => {
+                            if (err) console.log("알림 저장에 실패했어요!");
+                            else {
+                                const notiDB = realtime.ref(
+                                    `noti/${post.user_info.user_id}`
+                                );
+                                notiDB.update({ read: false });
+                            }
+                        }
+                    );
                 });
         });
     };

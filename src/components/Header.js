@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { actionCreators as userActions } from "../redux/modules/user";
 import { history } from "../redux/configureStore";
 import { apikey } from "../shared/firebase";
+import { realtime } from "../shared/firebase";
 
 //컴포넌트
 import { Grid, Text, Button } from "../elements";
@@ -11,6 +12,23 @@ const Header = props => {
     //useSelector을 이용하면 리덕스에 있는 state를 가져올&&&& 수 있었죠!
     const dispatch = useDispatch();
     const is_login = useSelector(state => state.user.is_login);
+    const user_id = useSelector(state => state.user.user?.uid);
+    const [is_read, setIsRead] = useState(true);
+    const notiDB = realtime.ref(`noti/${user_id}/`);
+
+    useEffect(() => {
+        notiDB.on("value", snapshot => {
+            setIsRead(snapshot.val()?.read);
+        });
+        return () => {
+            notiDB.off();
+        };
+    }, [user_id]);
+
+    const clickNotice = () => {
+        history.push("/noti");
+        notiDB.update({ read: true });
+    };
 
     //우리는 파이어베이스 로그인을 하면 sessionStorage에 인증정보를 담는 방식을 채택했죠!
     //이 sessionStorage에 있는 key 값에는 api키가 포함되어있습니다.
@@ -30,15 +48,24 @@ const Header = props => {
                     </Grid>
 
                     <Grid is_flex>
-                        <Button text="내정보"></Button>
-                        <Button text="알림"></Button>
+                        <Button text="내정보" />
+                        {is_read ? (
+                            <Button text="알림" _onClick={clickNotice} />
+                        ) : (
+                            <Button
+                                text="알림"
+                                bg="tomato"
+                                color="black"
+                                _onClick={clickNotice}
+                            />
+                        )}
                         <Button
                             text="로그아웃"
                             _onClick={() => {
                                 history.push("/login");
                                 dispatch(userActions.logOut());
                             }}
-                        ></Button>
+                        />
                     </Grid>
                 </Grid>
             </React.Fragment>
