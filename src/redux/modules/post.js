@@ -69,7 +69,7 @@ const getPostFB = (start = null, size = 3) => {
 
                 docs.forEach(doc => {
                     if (doc.exists) {
-                        //1.불러온 FB데이터에서 내가 쓸 데이터 솎아내기! 각 딕셔너리의 id와 딕셔너리 내용이 필요하죠!
+                        //불러온 FB데이터에서 내가 쓸 데이터 솎아내기! 각 딕셔너리의 id와 딕셔너리 내용이 필요하죠!
                         const data = { id: doc.id, ...doc.data() }; //스프레드 연산자를 이용하면 doc.data()안에 있는 key:value들이 나열되어 저장됩니다.
                         let post = {
                             user_info: {
@@ -89,54 +89,83 @@ const getPostFB = (start = null, size = 3) => {
                 post_list.pop(); //FB에서 4개씩 가져왔으니까 리덕스스토어에 넣기 전에 마지막요소는 지워줘야죠!
                 dispatch(getPost(post_list, paging)); //딕셔너리를 잘 정리해서~ 리덕스스토어에 저~장!
             });
-        return;
-        //FB데이터 불러오기!
+
+        // //FB데이터 불러와서 내가 원하는 형식으로 바꾼뒤에 넣어주는 방법!
+        // postDB
+        //     .get()
+        //     .then(docs => {
+        //         let post_list = [];
+        //         docs.forEach(doc => {
+        //             if (doc.exists) {
+        //                 //1.불러온 FB데이터에서 내가 쓸 데이터 솎아내기! 각 딕셔너리의 id와 딕셔너리 내용이 필요하죠!
+        //                 const data = { id: doc.id, ...doc.data() }; //스프레드 연산자를 이용하면 doc.data()안에 있는 key:value들이 나열되어 저장됩니다.
+        //                 let post = {
+        //                     user_info: {
+        //                         user_name: data.user_name,
+        //                         user_profile: data.user_profile,
+        //                         user_id: data.user_id,
+        //                     },
+        //                     image_url: data.image_url,
+        //                     contents: data.contents,
+        //                     comment_cnt: data.comment_cnt,
+        //                     insert_dt: data.insert_dt,
+        //                     id: data.id,
+        //                 };
+        //                 post_list.push(post);
+        //                 //2. 불러온 FB데이터에서 내가 쓸 데이터 솎아내기! (심화)
+        //                 // const data = doc.data();
+        //                 // let post = Object.keys(data).reduce(
+        //                 //     (acc, cur) => {
+        //                 //         if (cur.indexOf("user_") !== -1) {
+        //                 //             //user_이라는 문자열이 포함이 안되어있으면 -1으로 변하기 때문에, user
+        //                 //             return {
+        //                 //                 ...acc,
+        //                 //                 user_info: {
+        //                 //                     ...acc.user_info,
+        //                 //                     [cur]: data[cur],
+        //                 //                 },
+        //                 //             };
+        //                 //         }
+        //                 //         return { ...acc, [cur]: data[cur] };
+        //                 //     },
+        //                 //     { id: doc.id, user_info: {} }
+        //                 // );
+        //                 // post_list.push(post);
+        //             } else console.log("No such document!");
+        //         });
+        //         return dispatch(getPost(post_list)); //딕셔너리를 잘 정리해서~ 리덕스스토어에 저~장!
+        //     })
+        //     .catch(error => {
+        //         console.log("Error getting document:", error);
+        //     });
+    };
+};
+
+const getOnePostFB = id => {
+    return function (dispatch, getState, { history }) {
+        const postDB = firestore.collection("post");
         postDB
+            .doc(id)
             .get()
-            .then(docs => {
-                let post_list = [];
-                docs.forEach(doc => {
-                    if (doc.exists) {
-                        //1.불러온 FB데이터에서 내가 쓸 데이터 솎아내기! 각 딕셔너리의 id와 딕셔너리 내용이 필요하죠!
-                        const data = { id: doc.id, ...doc.data() }; //스프레드 연산자를 이용하면 doc.data()안에 있는 key:value들이 나열되어 저장됩니다.
-                        let post = {
-                            user_info: {
-                                user_name: data.user_name,
-                                user_profile: data.user_profile,
-                                user_id: data.user_id,
-                            },
-                            image_url: data.image_url,
-                            contents: data.contents,
-                            comment_cnt: data.comment_cnt,
-                            insert_dt: data.insert_dt,
-                            id: data.id,
-                        };
-                        post_list.push(post);
-                        //2. 불러온 FB데이터에서 내가 쓸 데이터 솎아내기! (심화)
-                        // const data = doc.data();
-                        // let post = Object.keys(data).reduce(
-                        //     (acc, cur) => {
-                        //         if (cur.indexOf("user_") !== -1) {
-                        //             //user_이라는 문자열이 포함이 안되어있으면 -1으로 변하기 때문에, user
-                        //             return {
-                        //                 ...acc,
-                        //                 user_info: {
-                        //                     ...acc.user_info,
-                        //                     [cur]: data[cur],
-                        //                 },
-                        //             };
-                        //         }
-                        //         return { ...acc, [cur]: data[cur] };
-                        //     },
-                        //     { id: doc.id, user_info: {} }
-                        // );
-                        // post_list.push(post);
-                    } else console.log("No such document!");
-                });
-                return dispatch(getPost(post_list)); //딕셔너리를 잘 정리해서~ 리덕스스토어에 저~장!
-            })
-            .catch(error => {
-                console.log("Error getting document:", error);
+            .then(doc => {
+                let _post = doc.data();
+                let post = Object.keys(_post).reduce(
+                    (acc, cur) => {
+                        if (cur.indexOf("user_") !== -1) {
+                            //user_이라는 문자열이 포함이 안되어있으면 -1으로 변하기 때문에, user
+                            return {
+                                ...acc,
+                                user_info: {
+                                    ...acc.user_info,
+                                    [cur]: _post[cur],
+                                },
+                            };
+                        }
+                        return { ...acc, [cur]: _post[cur] };
+                    },
+                    { id: doc.id, user_info: {} }
+                );
+                dispatch(getPost([post]));
             });
     };
 };
@@ -278,7 +307,16 @@ export default handleActions(
             //데이터를 리덕스 스토어에 저장!
             produce(state, draft => {
                 draft.list.push(...action.payload.post_list);
-                draft.paging = action.payload.paging;
+                draft.list = draft.list.reduce((acc, cur) => {
+                    if (acc.findIndex(a => a.id === cur.id) === -1) {
+                        return [...acc, cur];
+                    } else {
+                        acc[acc.findIndex(a => a.id === cur.id)] = cur;
+                        return acc;
+                    }
+                }, []);
+
+                if (action.payload.paging) draft.paging = action.payload.paging;
                 draft.is_loading = false;
             }),
         [ADD_POST]: (state, action) =>
@@ -311,6 +349,7 @@ const actionCreators = {
     getPostFB,
     addPostFB,
     editPostFB,
+    getOnePostFB,
 };
 
 export { actionCreators };

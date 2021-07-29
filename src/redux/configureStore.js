@@ -6,6 +6,7 @@ import { connectRouter } from "connected-react-router";
 import User from "./modules/user"; //user모듈에서 리듀서를 가져옵니다.
 import Post from "./modules/post";
 import Image from "./modules/image";
+import Comment from "./modules/comment";
 
 //history를 만들어서 던져줌
 export const history = createBrowserHistory();
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
     user: User,
     post: Post,
     image: Image,
+    comment: Comment,
     //아래와 같이 사용하면 우리의 라우터와 history가 연결이 됩니다. 이렇게 리덕스스토어에 브라우저히스토리를 저장할 수 있다.
     //꼭 리듀서명을 router로 해야합니다!
     router: connectRouter(history),
